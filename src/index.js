@@ -40,26 +40,38 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 discordClient.on("messageReactionAdd", (reaction, user) => {
-  const userId = getUserId(user);
+  const messageAuthorId = getUserId(reaction.message.author);
+  const reactorUserId = getUserId(user);
   const emoji = getEmojiReaction(reaction);
 
-  console.log(`Incrementing ${emoji} for ${userId}`);
+  console.log(
+    `Incrementing ${emoji} for ${messageAuthorId}, added by ${reactorUserId}`
+  );
   redisClient.hincrby("emoji", emoji, 1);
-  redisClient.hincrby(emoji, userId, 1);
+  redisClient.hincrby(`user:${reactorUserId}`, emoji, 1);
+  redisClient.hincrby(`emoji:${emoji}`, messageAuthorId, 1);
 });
 
 discordClient.on("messageReactionRemove", (reaction, user) => {
-  const userId = getUserId(user);
+  const messageAuthorId = getUserId(reaction.message.author);
+  const reactorUserId = getUserId(user);
   const emoji = getEmojiReaction(reaction);
 
-  console.log(`Decrementing ${emoji} for ${userId}`);
+  console.log(
+    `Decrementing ${emoji} for ${messageAuthorId}, removed by ${reactorUserId}`
+  );
   redisClient.hincrby("emoji", emoji, -1);
-  redisClient.hincrby(emoji, userId, -1);
+  redisClient.hincrby(`user:${reactorUserId}`, emoji, 1);
+  redisClient.hincrby(`emoji:${emoji}`, messageAuthorId, -1);
 });
 
 discordClient.login(process.env.DISCORD_TOKEN);
 
-app.get("/", (req, res) => res.send("Hello World!"));
+app.get("/", (req, res) =>
+  res.send({
+    routes: ["/emojis", "/emojis/:emoji", "/reactions/:user"],
+  })
+);
 
 app.get("/emojis", (req, res) => {
   redisClient.hgetall("emoji", (err, data) => {
@@ -72,9 +84,22 @@ app.get("/emojis", (req, res) => {
 });
 
 app.get("/emojis/:emoji", (req, res) => {
-  redisClient.hgetall(req.params.emoji, (err, data) => {
+  redisClient.hgetall(`emoji:${req.params.emoji}`, (err, data) => {
     if (data === null) {
       res.send({});
+      return;
+    }
+    res.send(data);
+  });
+});
+
+app.get("/reactions/:user", (req, res) => {
+  redisClient.hgetall(`user:${req.params.user}`, (err, data) => {
+    if (data === null) {
+      res.status(404).send({
+        error:
+          "No reactions found. Did you request a username including # identifier? The # needs to be URI encoded, use %23.",
+      });
       return;
     }
     res.send(data);
