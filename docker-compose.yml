@@ -6,13 +6,12 @@ services:
     volumes:
       - ./:/usr/home/app
     ports:
-      - "3000:3000"
-      - "9229:9229"
+      - "3000"
+      - "9229"
     links:
       - redis
     depends_on:
       - redis
-    command: "sleep 500"
     command: "yarn watch"
 
   redis:

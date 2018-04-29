@@ -1,0 +1,6 @@
+version: "3"
+services:
+  reactions:
+    environment:
+      NODE_ENV: production
+    command: "yarn start"
