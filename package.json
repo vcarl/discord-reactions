@@ -1,0 +1,20 @@
+{
+  "name": "discord-reactions",
+  "version": "0.0.0",
+  "description": "Tabulation the number of discord reactions per user",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "watch": "nodemon --inspect index.js",
+    "start": "node index.js"
+  },
+  "author": "Carl Vitullo",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^1.13.3"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "redis": "^2.8.0"
+  }
+}

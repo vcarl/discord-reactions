@@ -1,0 +1,20 @@
+version: "3"
+services:
+  reactions:
+    build:
+      context: .
+    volumes:
+      - ./:/usr/home/app
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    links:
+      - redis
+    depends_on:
+      - redis
+    command: "sleep 500"
+    command: "yarn watch"
+
+  redis:
+    image: redis:4.0
+  
