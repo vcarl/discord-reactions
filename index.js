@@ -1,8 +1,12 @@
 require("dotenv").config();
 const express = require("express");
+const redis = require("redis");
 const Discord = require("discord.js");
 
+const { getUserId, getEmojiReaction } = require("./discord-accessors");
+
 const discordClient = new Discord.Client();
+const redisClient = redis.createClient({ host: "redis" });
 const app = express();
 
 discordClient.on("ready", () => {
@@ -34,6 +38,24 @@ if (process.env.NODE_ENV !== "production") {
     discordClient.emit("messageReactionAdd", reaction, user);
   });
 }
+
+discordClient.on("messageReactionAdd", (reaction, user) => {
+  const userId = getUserId(user);
+  const emoji = getEmojiReaction(reaction);
+
+  console.log(`Incrementing ${emoji} for ${userId}`);
+  redisClient.hincrby("emoji", emoji, 1);
+  redisClient.hincrby(emoji, userId, 1);
+});
+
+discordClient.on("messageReactionRemove", (reaction, user) => {
+  const userId = getUserId(user);
+  const emoji = getEmojiReaction(reaction);
+
+  console.log(`Decrementing ${emoji} for ${userId}`);
+  redisClient.hincrby("emoji", emoji, -1);
+  redisClient.hincrby(emoji, userId, -1);
+});
 
 discordClient.login(process.env.DISCORD_TOKEN);
 
