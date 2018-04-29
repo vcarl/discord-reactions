@@ -61,6 +61,26 @@ discordClient.login(process.env.DISCORD_TOKEN);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
+app.get("/emojis", (req, res) => {
+  redisClient.hgetall("emoji", (err, data) => {
+    if (data === null) {
+      res.send({});
+      return;
+    }
+    res.send(data);
+  });
+});
+
+app.get("/emojis/:emoji", (req, res) => {
+  redisClient.hgetall(req.params.emoji, (err, data) => {
+    if (data === null) {
+      res.send({});
+      return;
+    }
+    res.send(data);
+  });
+});
+
 app.listen(3000, "0.0.0.0", () =>
   console.log("Example app listening on port 3000!")
 );
