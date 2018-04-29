@@ -12,6 +12,10 @@ const app = express();
 discordClient.on("ready", () => {
   console.log(`Logged in as ${discordClient.user.tag}!`);
 });
+discordClient.login(process.env.DISCORD_TOKEN).catch(e => {
+  console.error(e.message);
+  process.exit(1);
+});
 
 if (process.env.NODE_ENV !== "production") {
   // This is a hack to emit `messageReactionAdd` events for messages that were
@@ -64,8 +68,6 @@ discordClient.on("messageReactionRemove", (reaction, user) => {
   redisClient.hincrby(`user:${reactorUserId}`, emoji, 1);
   redisClient.hincrby(`emoji:${emoji}`, messageAuthorId, -1);
 });
-
-discordClient.login(process.env.DISCORD_TOKEN);
 
 app.get("/", (req, res) =>
   res.send({
