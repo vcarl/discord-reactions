@@ -2,11 +2,11 @@
   "name": "discord-reactions",
   "version": "0.0.0",
   "description": "Tabulation the number of discord reactions per user",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "jest",
-    "watch": "nodemon --inspect index.js",
-    "start": "node index.js"
+    "watch": "nodemon --inspect src/index.js",
+    "start": "node src/index.js"
   },
   "author": "Carl Vitullo",
   "license": "MIT",
