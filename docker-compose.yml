@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 services:
   reactions:
     build:
@@ -13,7 +13,12 @@ services:
     depends_on:
       - redis
     command: "yarn watch"
+    secrets:
+      - env
 
   redis:
     image: redis:4.0
   
+secrets:
+  env:
+    file: .env

@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: "/run/secrets/env" });
 const express = require("express");
 const redis = require("redis");
 const Discord = require("discord.js");
