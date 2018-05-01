@@ -7,5 +7,7 @@ COPY yarn.lock /usr/home/app
 RUN yarn install
 COPY ./src /usr/home/app/src
 
+CMD ["/usr/local/bin/yarn", "start"]
+
 EXPOSE 3000
 EXPOSE 9229
