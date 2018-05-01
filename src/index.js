@@ -65,7 +65,7 @@ discordClient.on("messageReactionRemove", (reaction, user) => {
     `Decrementing ${emoji} for ${messageAuthorId}, removed by ${reactorUserId}`
   );
   redisClient.hincrby("emoji", emoji, -1);
-  redisClient.hincrby(`user:${reactorUserId}`, emoji, 1);
+  redisClient.hincrby(`user:${reactorUserId}`, emoji, -1);
   redisClient.hincrby(`emoji:${emoji}`, messageAuthorId, -1);
 });
 
