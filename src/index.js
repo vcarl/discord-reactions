@@ -17,31 +17,29 @@ discordClient.login(process.env.DISCORD_TOKEN).catch(e => {
   process.exit(1);
 });
 
-if (process.env.NODE_ENV !== "production") {
-  // This is a hack to emit `messageReactionAdd` events for messages that were
-  // sent before the server was started. It adds a good bit of overhead for an
-  // edge case that shouldn't apply in general in production.
-  // https://gist.github.com/Danktuary/27b3cef7ef6c42e2d3f5aff4779db8ba#file-index-js
-  discordClient.on("raw", async event => {
-    if (event.t !== "MESSAGE_REACTION_ADD") return;
+// This is a hack to emit `messageReactionAdd` events for messages that were
+// sent before the server was started. It adds a good bit of overhead for an
+// edge case that shouldn't apply in general in production.
+// https://gist.github.com/Danktuary/27b3cef7ef6c42e2d3f5aff4779db8ba#file-index-js
+discordClient.on("raw", async event => {
+  if (event.t !== "MESSAGE_REACTION_ADD") return;
 
-    const { d: data } = event;
-    const user = discordClient.users.get(data.user_id);
-    const channel =
-      discordClient.channels.get(data.channel_id) || (await user.createDM());
+  const { d: data } = event;
+  const user = discordClient.users.get(data.user_id);
+  const channel =
+    discordClient.channels.get(data.channel_id) || (await user.createDM());
 
-    // if the message is already in the cache, don't re-emit the event
-    if (channel.messages.has(data.message_id)) return;
+  // if the message is already in the cache, don't re-emit the event
+  if (channel.messages.has(data.message_id)) return;
 
-    const message = await channel.fetchMessage(data.message_id);
-    const emojiKey = data.emoji.id
-      ? `${data.emoji.name}:${data.emoji.id}`
-      : data.emoji.name;
-    const reaction = message.reactions.get(emojiKey);
+  const message = await channel.fetchMessage(data.message_id);
+  const emojiKey = data.emoji.id
+    ? `${data.emoji.name}:${data.emoji.id}`
+    : data.emoji.name;
+  const reaction = message.reactions.get(emojiKey);
 
-    discordClient.emit("messageReactionAdd", reaction, user);
-  });
-}
+  discordClient.emit("messageReactionAdd", reaction, user);
+});
 
 discordClient.on("messageReactionAdd", (reaction, user) => {
   const messageAuthorId = getUserId(reaction.message.author);
