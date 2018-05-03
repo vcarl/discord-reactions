@@ -79,9 +79,19 @@ app.get("/emojis", (req, res) => {
       res.send({});
       return;
     }
-    res.send(data);
+
+    res.send(
+      buildObjectFromPairs(
+        Object.entries(data)
+          .map(x => ((x[1] = Number(x[1])), x))
+          .sort((a, b) => (a[1] < b[1] ? 1 : -1))
+      )
+    );
   });
 });
+
+const buildObjectFromPairs = pairs =>
+  pairs.reduce((obj, pair) => ((obj[pair[0]] = pair[1]), obj), {});
 
 app.get("/emojis/:emoji", (req, res) => {
   redisClient.hgetall(`emoji:${req.params.emoji}`, (err, data) => {
@@ -89,7 +99,14 @@ app.get("/emojis/:emoji", (req, res) => {
       res.send({});
       return;
     }
-    res.send(data);
+
+    res.send(
+      buildObjectFromPairs(
+        Object.entries(data)
+          .map(x => ((x[1] = Number(x[1])), x))
+          .sort((a, b) => (a[1] < b[1] ? 1 : -1))
+      )
+    );
   });
 });
 
