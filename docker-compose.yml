@@ -3,9 +3,11 @@ services:
   reactions:
     build:
       context: .
+    volumes:
+      - ./:/usr/home/app
     ports:
-      - "3000"
-      - "9229"
+      - "3000:3000"
+      - "9229:9229"
     links:
       - redis
     depends_on:
